@@ -19,11 +19,28 @@ async function run (){
         const paymentCollection = client.db('powerHack').collection('payment');
 
         app.get('/payment', async (req, res)=>{
+
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
+
             const query = {};
             const cursor = paymentCollection.find(query);
-            const payments = await cursor.toArray();
+            let payments;
+            if(page || size){
+                payments = await cursor.skip(page*size).toArray();
+            }
+            else {
+                payments = await cursor.toArray();
+            }
+            // const payments = await cursor.toArray();
             res.send(payments);
         });
+
+        // pagination APi
+        app.get('/paymentCount', async(req, res)=>{
+            const count = await paymentCollection.estimatedDocumentCount();
+            res.send({count});
+        })
 
         // catch single item
         app.get('/payment/:id', async(req, res)=>{
@@ -66,6 +83,8 @@ async function run (){
             const result = await paymentCollection.deleteOne(query);
             res.send(result);
         });
+
+
 
     }
     finally{
