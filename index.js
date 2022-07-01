@@ -41,6 +41,24 @@ async function run (){
                 res.send(result);
             });
 
+        // Update
+        app.put('/payment/:id', async(req, res)=>{
+            const id = req.params.id;
+            const updatedPayment = req.body;
+            const filter = {_id : ObjectId(id)};
+            const options = { upsert : true };
+            const updatedDoc = {
+                $set : {
+                   fullName : updatedPayment.name,
+                   email : updatedPayment.email,
+                   phone : updatedPayment.phone,
+                   paidAmount : updatedPayment.paidAmount
+                }
+            };
+            const result = await paymentCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
+
          // Delete
          app.delete('/payment/:id', async(req, res)=>{
             const id = req.params.id;
